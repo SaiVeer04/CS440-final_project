@@ -1,6 +1,7 @@
 import numpy as np
 import os
 from classifiers import Perceptron
+from classifiers import CustomNN
 
 def load_face_data(data_path, labels_path):
     with open(data_path, 'r') as f:
@@ -74,10 +75,16 @@ x_values, y_values = load_face_data("data/facedata/facedatatrain" , "data/faceda
 
 digit_data, digit_labels = load_digit_data("data/digitdata/trainingimages","data/digitdata/traininglabels")
 
-model = Perceptron(input_size=x_values.shape[1], num_classes=2)
-model.train(x_values, y_values)
+model = Perceptron(input_size=digit_data.shape[1], num_classes=10)
+model.train(digit_data, digit_labels)
 
 x_test_values, y_test_values = load_face_data("data/facedata/facedatatest" , "data/facedata/facedatatestlabels")
+digit_test_data, digit_test_labels = load_digit_data("data/digitdata/testimages","data/digitdata/testlabels")
 
-print(model.evaluate(x_test_values, y_test_values))
+print(model.evaluate(digit_test_data, digit_test_labels))
+
+model2 = CustomNN(input_size=x_values.shape[1], hidden_size1=256, hidden_size2=128,output_size=2)
+model2.train(x_values, y_values)
+
+print(model2.evaluate(x_test_values, y_test_values))
 
