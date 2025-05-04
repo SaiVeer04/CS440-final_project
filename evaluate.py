@@ -14,6 +14,7 @@ datasets = ['digits', 'faces']
 percents = list(range(10, 101, 10))
 trials = 5
 
+
 def sample_data(X, y, percent, seed=None):
     if seed is not None:
         np.random.seed(seed)
@@ -21,6 +22,7 @@ def sample_data(X, y, percent, seed=None):
     n = max(1, int(len(y) * percent / 100))
     sel = idx[:n]
     return X[sel], y[sel]
+
 
 with open('results.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
@@ -42,8 +44,8 @@ with open('results.csv', 'w', newline='') as csvfile:
                                 "data/digitdata/testlabels"
                             )
                             num_classes = 10
-                        else:  
-                            #faces
+                        else:
+                            # faces
                             X_train, y_train = load_face_data(
                                 "data/facedata/facedatatrain",
                                 "data/facedata/facedatatrainlabels"
@@ -60,16 +62,16 @@ with open('results.csv', 'w', newline='') as csvfile:
                                 clf = Perceptron(input_size=Xs.shape[1], num_classes=num_classes)
                                 clf.train(Xs, ys)
                                 acc = clf.evaluate(X_test, y_test)
-                            else:  
-                                #custom nn
+                            else:
+                                # custom nn
                                 clf = CustomNN(input_size=Xs.shape[1],
                                                hidden_size1=256,
                                                hidden_size2=128,
                                                output_size=num_classes)
                                 clf.train(Xs, ys)
                                 acc = clf.evaluate(X_test, y_test)
-                        else:  
-                            #pytorch
+                        else:
+                            # pytorch
                             Xtr = torch.tensor(Xs, dtype=torch.float32)
                             ytr = torch.tensor(ys, dtype=torch.long)
                             Xte = torch.tensor(X_test, dtype=torch.float32)

@@ -64,6 +64,12 @@ def train_and_evaluate(
         config: TrainerConfig
 ) -> Dict[str, Any]:
     try:
+        train_mean = X_train.mean(dim=0, keepdim=True)
+        train_std = X_train.std(dim=0, keepdim=True).clamp(min=1e-6)
+
+        X_train = (X_train - train_mean) / train_std
+        X_val = (X_val - train_mean) / train_std
+
         # Prepare data loaders
         train_loader = make_dataloader(X_train, y_train, config.batch_size, shuffle=True)
         val_loader = make_dataloader(X_val, y_val, config.batch_size, shuffle=False)
@@ -72,7 +78,11 @@ def train_and_evaluate(
         model.to(device)
 
         criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(model.parameters(), lr=config.lr)
+        optimizer = optim.Adam(
+            model.parameters(),
+            lr=config.lr,
+            weight_decay=1e-4
+        )
 
         logger.info("Starting training...")
         for epoch in range(1, config.epochs + 1):
@@ -119,4 +129,3 @@ def train_and_evaluate(
     except Exception as e:
         logger.exception("Error during training/evaluation")
         raise
-

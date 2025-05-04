@@ -119,7 +119,7 @@ def main():
     cfg = TrainerConfig(
         lr=0.01,
         batch_size=128,
-        epochs=50
+        epochs=10
     )
 
     start = time.time()
