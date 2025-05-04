@@ -5,9 +5,18 @@ import torch
 from main import load_face_data, load_digit_data
 from classifiers import Perceptron, CustomNN
 from pytorch_nn import TorchNN, TrainerConfig, train_and_evaluate
+import logging
+
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    fmt = "[%(asctime)s] %(levelname)s:%(name)s: %(message)s"
+    handler.setFormatter(logging.Formatter(fmt))
+    logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 frameworks = {
-    'custom': ['perceptron', 'customNN'],
+    'scratch': ['perceptron', 'customNN'],
     'pytorch': ['customNN']
 }
 datasets = ['digits', 'faces']
@@ -60,16 +69,24 @@ with open('results.csv', 'w', newline='') as csvfile:
                         if fw == 'scratch':
                             if model == 'perceptron':
                                 clf = Perceptron(input_size=Xs.shape[1], num_classes=num_classes)
+                                perceptron_start = time.time()
                                 clf.train(Xs, ys)
+                                duration = time.time() - perceptron_start
                                 acc = clf.evaluate(X_test, y_test)
-                            else:
+                                logger.info(f"[scratch/perceptron] pct={pct:>3}%  trial={t}  "
+                                            f"acc={acc:.4f}  time={duration:.2f}s")
+                            elif model == 'customNN':
                                 # custom nn
                                 clf = CustomNN(input_size=Xs.shape[1],
                                                hidden_size1=256,
                                                hidden_size2=128,
                                                output_size=num_classes)
+                                custom_nn_start = time.time()
                                 clf.train(Xs, ys)
+                                duration = time.time() - custom_nn_start
                                 acc = clf.evaluate(X_test, y_test)
+                                logger.info(f"[scratch/customNN]   pct={pct:>3}%  trial={t}  acc={acc:.4f}  "
+                                            f"time={duration:.2f}s")
                         else:
                             # pytorch
                             Xtr = torch.tensor(Xs, dtype=torch.float32)
@@ -91,4 +108,4 @@ with open('results.csv', 'w', newline='') as csvfile:
                         np.mean(accs), np.std(accs),
                         np.mean(times), np.std(times)
                     ])
-print("Eval complte. Saved to results.csv")
+print("Evaluation complete. Saved to results.csv")
