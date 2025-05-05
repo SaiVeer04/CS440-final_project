@@ -130,54 +130,53 @@ def train_and_evaluate(
         logger.exception("Error during training/evaluation")
         raise
 
+
 def train_model(
         model: nn.Module,
         X_train: torch.Tensor, y_train: torch.Tensor,
         config: TrainerConfig
-    ) -> nn.Module:
-        try:
-            train_mean = X_train.mean(dim=0, keepdim=True)
-            train_std = X_train.std(dim=0, keepdim=True).clamp(min=1e-6)
+) -> nn.Module:
+    try:
+        train_mean = X_train.mean(dim=0, keepdim=True)
+        train_std = X_train.std(dim=0, keepdim=True).clamp(min=1e-6)
 
-            X_train = (X_train - train_mean) / train_std
-            
+        X_train = (X_train - train_mean) / train_std
 
-            # Prepare data loaders
-            train_loader = make_dataloader(X_train, y_train, config.batch_size, shuffle=True)
-            
+        # Prepare data loaders
+        train_loader = make_dataloader(X_train, y_train, config.batch_size, shuffle=True)
 
-            device = torch.device(config.device)
-            model.to(device)
+        device = torch.device(config.device)
+        model.to(device)
 
-            criterion = nn.CrossEntropyLoss()
-            optimizer = optim.Adam(
-                model.parameters(),
-                lr=config.lr,
-                weight_decay=1e-4
-            )
+        criterion = nn.CrossEntropyLoss()
+        optimizer = optim.Adam(
+            model.parameters(),
+            lr=config.lr,
+            weight_decay=1e-4
+        )
 
-            logger.info("Starting training...")
-            for epoch in range(1, config.epochs + 1):
-                model.train()
-                running_loss = 0.0
+        logger.info("Starting training...")
+        for epoch in range(1, config.epochs + 1):
+            model.train()
+            running_loss = 0.0
 
-                for batch_x, batch_y in train_loader:
-                    batch_x = batch_x.to(device)
-                    batch_y = batch_y.to(device)
+            for batch_x, batch_y in train_loader:
+                batch_x = batch_x.to(device)
+                batch_y = batch_y.to(device)
 
-                    optimizer.zero_grad()
-                    logits = model(batch_x)
-                    loss = criterion(logits, batch_y)
-                    loss.backward()
-                    optimizer.step()
+                optimizer.zero_grad()
+                logits = model(batch_x)
+                loss = criterion(logits, batch_y)
+                loss.backward()
+                optimizer.step()
 
-                    running_loss += loss.item()
+                running_loss += loss.item()
 
-                avg_loss = running_loss / len(train_loader)
-                logger.info(f"Epoch {epoch}/{config.epochs} — loss: {avg_loss:.4f}")
+            avg_loss = running_loss / len(train_loader)
+            logger.info(f"Epoch {epoch}/{config.epochs} — loss: {avg_loss:.4f}")
 
-            return model
-            
-        except Exception as e:
-            logger.exception("Error during training/evaluation")
-            raise
+        return model
+
+    except Exception as e:
+        logger.exception("Error during training/evaluation")
+        raise
