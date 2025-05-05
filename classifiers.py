@@ -92,7 +92,7 @@ class CustomNN:
         self.W1 -= lr * dW1
         self.b1 -= lr * db1
 
-    def train(self, X, y, lr=0.01, epochs=50, batch_size=32):
+    def train(self, X, y, lr=0.01, epochs=100, batch_size=32):
         for epoch in range(epochs):
 
             idx = np.arange(X.shape[0])

@@ -140,8 +140,8 @@ def load_pytorch_models():
 
 
 
-#save_perceptron_models()
-#save_custom_nn_models()
+save_perceptron_models()
+save_custom_nn_models()
 save_pytorch_models()
     
 
